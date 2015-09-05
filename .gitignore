@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 
+# active config
+server.config
+
 # swap files
 *.swp
 
