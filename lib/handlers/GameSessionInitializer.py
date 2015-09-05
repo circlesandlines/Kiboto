@@ -64,6 +64,13 @@ class GameSessionInitializer(tornado.web.RequestHandler):
 			return
 
 		# update local store
+		# TODO. also make a periodic function that updates this.
+		# if a node in the cluster hasn't synced with the session store,
+		# send errors on ping so that proxies can't detect it
+		# the key written here might be overwritten later in the sync
+		# that's ok, its async :) no collisions!
+		# the above strategy will minimize cache misses and eventual
+		# consistency anomalies
 		self.local_sessions[session_key] = hostname
 
 		# update session_store with the hostname that is subscribed to the game client

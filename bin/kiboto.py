@@ -22,8 +22,8 @@ if __name__ == "__main__":
 	tornado_app_config = tornado.web.Application([
 			(r"/session", GameSessionInitializer, dict(local_sessions=local_sessions)),
 			(r"/subscribe", BotSubscriptionHandler),
-			(r"/get_sessions", SessionBroadcastHandler)
-			(r"/event", EventHandler, dict(config=config, local_sessions=local_sessions))
+			(r"/get_sessions", SessionBroadcastHandler, dict(local_sessions=local_sessions))
+			(r"/event", EventHandler, dict(local_sessions=local_sessions))
 		])
 
 	# listen on the configured port, default to 8888 if not specified
