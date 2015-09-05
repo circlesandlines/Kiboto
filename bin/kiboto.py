@@ -28,7 +28,7 @@ if __name__ == "__main__":
 	tornado_app_config = tornado.web.Application([
 			(r"/session", GameSessionInitializer, dict(local_sessions=local_sessions)),
 			(r"/subscribe", BotSubscriptionHandler),
-			(r"/get_sessions", SessionBroadcastHandler, dict(local_sessions=local_sessions))
+			(r"/get_sessions", SessionBroadcastHandler, dict(local_sessions=local_sessions)),
 			(r"/event", EventHandler, dict(local_sessions=local_sessions))
 		])
 
@@ -36,7 +36,7 @@ if __name__ == "__main__":
 	sockets = bind_sockets(config.get('port', 8888))
 
 	# multi-process tornado. auto forks for every core you have
-	fork_processes()
+	fork_processes(None)
 
 	# set the server's application handler
 	server = HTTPServer(tornado_app_config)
@@ -46,7 +46,7 @@ if __name__ == "__main__":
 	main_loop = tornado.ioloop.IOLoop.instance()
 
 	# periodically sync local sessions to mongo
-	session_updater_loop = tornado.web.PeriodicCallback(local_sessions.update_from_redis, local_sessions.update_period_ms, main_loop)
+	session_updater_loop = tornado.ioloop.PeriodicCallback(local_sessions.update_from_redis, local_sessions.update_period_ms, main_loop)
 
 	main_loop.start()
 
