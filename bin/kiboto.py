@@ -4,6 +4,9 @@ import tornado.web
 from tornado.netutil import bind_sockets
 from tornado.process import fork_processes
 
+# helpers
+import json
+
 # kiboto specific libraries
 from lib.handlers import GameSessionInitializer
 from lib.handlers import BotSubscriptionHandler

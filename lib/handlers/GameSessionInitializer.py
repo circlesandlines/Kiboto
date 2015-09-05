@@ -1,3 +1,4 @@
+import tornado.gen
 import tornado.web
 import tornadis
 
@@ -51,11 +52,11 @@ class GameSessionInitializer(tornado.web.RequestHandler):
 		# once a bot subscribes, the value of the key will be the hostname
 		for retries in xrange(0, 100):
 			# wait and retry
-			yield gen.sleep(5)
+			yield tornado.gen.sleep(5)
 			hostname = yield session_store.call('GET', session_key)
 
 			if hostname != "":
-				retries = 0
+				break
 
 		# if the host name is still not set after 100 retries
 		if hostname == "":

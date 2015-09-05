@@ -1,5 +1,7 @@
 import json
+import tornado.gen
 import tornado.web
+from tornado.httpclient import AsyncHTTPClient
 import tornadis
 
 class MyRequestHandler(tornado.web.RequestHandler):
@@ -9,9 +11,7 @@ class MyRequestHandler(tornado.web.RequestHandler):
 
 	@tornado.gen.coroutine
 	def post(self):
-		"""POST handler"""
-
-		# extract data
+		# extract POST event data
 		event_data = json.loads(self.request.body)
 		session_key = event_data['session_key']
 
