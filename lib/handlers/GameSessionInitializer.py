@@ -14,9 +14,7 @@ class GameSessionInitializer(tornado.web.RequestHandler):
 		The bot can then be configured to join the session.
 
 	"""
-	def initialize(self, config, bots, local_sessions, session_store):
-		self.config = config
-		self.bots = bots
+	def initialize(self, local_sessions):
 		self.local_sessions = local_sessions
 
 	@tornado.gen.coroutine

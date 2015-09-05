@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
 	# multiple request handlers, sharing the same state
 	tornado_app_config = tornado.web.Application([
-			(r"/session", GameSessionInitializer, dict(config=config, local_sessions=local_sessions)),
+			(r"/session", GameSessionInitializer, dict(local_sessions=local_sessions)),
 			(r"/subscribe", BotSubscriptionHandler),
 			(r"/get_sessions", SessionBroadcastHandler)
 			(r"/event", EventHandler, dict(config=config, local_sessions=local_sessions))
