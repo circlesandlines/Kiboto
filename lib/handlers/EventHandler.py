@@ -16,12 +16,12 @@ class MyRequestHandler(tornado.web.RequestHandler):
 		session_key = event_data['session_key']
 
 		# check if session exists in local store
-		if session_key not in self.local_sessions:
+		if session_key not in self.local_sessions.sessions:
 			session_store = tornadis.Client(client_timeout=1)
 			yield session_store.connect()
 			hostname = yield session_store.call('GET', session_key)
 		else:
-			hostname = self.local_sessions[session_key]
+			hostname = self.local_sessions.sessions[session_key]
 
 		# request an event from a bot
 		bot = AsyncHTTPClient()

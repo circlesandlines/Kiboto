@@ -71,7 +71,7 @@ class GameSessionInitializer(tornado.web.RequestHandler):
 		# that's ok, its async :) no collisions!
 		# the above strategy will minimize cache misses and eventual
 		# consistency anomalies
-		self.local_sessions[session_key] = hostname
+		self.local_sessions.sessions[session_key] = hostname
 
 		# update session_store with the hostname that is subscribed to the game client
 		# TODO cleanly handle timeout

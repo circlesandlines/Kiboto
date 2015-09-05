@@ -10,13 +10,15 @@ from lib.handlers import BotSubscriptionHandler
 from lib.handlers import SessionBroadcastHandler
 from lib.handlers import EventHandler
 
+import session_state
+
 if __name__ == "__main__":
 	# load config files
 	with open('conf/server.json') as f:
 		config = json.loads(f.read())
 
 	# keep a global copy of session cache for speed
-	local_sessions = {}
+	local_sessions = session_state.SessionHandler()
 
 	# multiple request handlers, sharing the same state
 	tornado_app_config = tornado.web.Application([
@@ -37,4 +39,11 @@ if __name__ == "__main__":
 	server.add_sockets(sockets)
 
 	# create the io loop
-	tornado.ioloop.IOLoop.instance()start()
+	main_loop = tornado.ioloop.IOLoop.instance()
+
+	# periodically sync local sessions to mongo
+	session_updater_loop = tornado.web.PeriodicCallback(local_sessions.update_from_redis, local_sessions.update_period_ms, main_loop)
+
+	main_loop.start()
+
+
