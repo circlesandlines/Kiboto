@@ -9,3 +9,7 @@
 
 alias python="/usr/local/bin/python2.7"
 alias pip="/usr/local/bin/pip"
+
+# NOTE: aliases are not executed in bash scripts.
+# you must execute these manually or put them in your bashrc file.
+# I recommend using virtualenv though
