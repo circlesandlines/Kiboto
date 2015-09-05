@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# New OS X versions come with Python Anaconda. This sort of screws up
+# the environment and makes installing packages difficult
+# use the anaconda pip to install itself and python.
+# it will install it in the correct directory. Use this script
+# to make aliases to the correct Python and Pip locations.
+# try:
+
+alias python="/usr/local/bin/python2.7"
+alias pip="/usr/local/bin/pip"
