@@ -1,8 +1,15 @@
 /*
 
-	Usage:
+	This is the Kiboto game client SDK.
+	===================================
+
+	Either use it with the supplied bot message queue, or
+	use your own and supply the callbacks
+
+	> USAGE:
 
 		workflow 1 - supplying callbacks:
+		---------------------------------
 
 		...
 		game = new KibotoGame(hostname, port, 123, 000, "bob");
@@ -10,7 +17,7 @@
 
 		...
 
-		game.event({...}, function (httpcode, text, statustext) {
+		game.event({...}, function (httpcode, text, statustext, timeoutMS) {
 				// do stuff here
 			},
 
@@ -22,7 +29,9 @@
 		if botMessages.messagesToProcess()
 			gameLogic.process(botMessages.get());
 
+
 		workflow 2 - using the global message queue
+		-------------------------------------------
 
 		...
 		botMessages = new KibotoBotMessages();
@@ -30,13 +39,13 @@
 		game.connect();
 
 		...
-
 		game.event({...});
 
 		if botMessages.messagesToProcess()
 			gameLogic.process(botMessages.get());
 
 		botMessages.clear();
+		...
 
 		// repeat
 
@@ -76,7 +85,7 @@ function KibotoGame(hostname, port, game_id, session_id, player_id) {
 		// initializes the session
 	};
 
-	this.event = function(data, callback, errorCallback) {
+	this.event = function(data, callback, errorCallback, timeout) {
 		// send an event to kiboto server with
 		// what ever data the game developer wants.
 		// should represent state changes for the current player
@@ -126,6 +135,7 @@ function KibotoGame(hostname, port, game_id, session_id, player_id) {
 			};
 		}
 
+		xhr.timeout = timeoutMS;
 		xhr.send();
  	};
 }
