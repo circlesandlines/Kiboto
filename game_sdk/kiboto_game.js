@@ -19,15 +19,15 @@
 
 		game.event({...}, function (httpcode, text, statustext, timeoutMS) {
 				// do stuff here
+				// maybe you want to store the message in your
+				// own message queue?
+				// maybe you want to modify game state right away?
+				// up to you!
 			},
 
 			function (errorcode, errormessage) {
 				// do stuff here
 			});
-
-		// here, gameLogic is assumed to exist
-		if botMessages.messagesToProcess()
-			gameLogic.process(botMessages.get());
 
 
 		workflow 2 - using the global message queue
