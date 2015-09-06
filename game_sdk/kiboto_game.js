@@ -162,7 +162,7 @@ function KibotoGame(hostname, port, game_id, session_id, player_id) {
 		// handle timeouts?
 
 		xhr.timeout = timeoutMS;
-		xhr.send();
+		xhr.send(data);
  	};
 }
 
