@@ -8,16 +8,15 @@
 
 	> USAGE:
 
-		workflow 1 - supplying callbacks:
-		---------------------------------
-
 		...
+
 		botMessages = new KibotoBotMessages();
 		game = new KibotoGame(hostname, port, 123, 000, "bob");
 		game.init_session();
 
 		...
 
+		// somewhere in the game loop
 		game.event({...}, function (httpcode, text, statustext) {
 
 				// you can use the kiboto message queue,
@@ -33,6 +32,11 @@
 			function (errorcode, errormessage) {
 				//...
 			}, 5000);
+
+		if (botMessages.messagesToProcess) {
+			YourGameLogic.process(botMessages.get());
+			botMessages.clear();
+		}
 
 */
 
@@ -103,8 +107,6 @@ function KibotoGame(hostname, port, game_id, session_id, player_id) {
 		// as well as other players and the environment.
 		// the callback should be a function that the game
 		// specifies. they can do whatever they want in there
-		// if no callback is set, the message will be added to the
-		// kiboto message queue for later processing.
 
 		var xhr = new XMLHttpRequest();
 		xhr.open("POST", "/event", true);
