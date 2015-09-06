@@ -12,43 +12,27 @@
 		---------------------------------
 
 		...
-		game = new KibotoGame(hostname, port, 123, 000, "bob");
-		game.init_session();
-
-		...
-
-		game.event({...}, function (httpcode, text, statustext, timeoutMS) {
-				// do stuff here
-				// maybe you want to store the message in your
-				// own message queue?
-				// maybe you want to modify game state right away?
-				// up to you!
-			},
-
-			function (errorcode, errormessage) {
-				// do stuff here
-			});
-
-
-		workflow 2 - using the global message queue
-		-------------------------------------------
-
-		...
 		botMessages = new KibotoBotMessages();
 		game = new KibotoGame(hostname, port, 123, 000, "bob");
 		game.init_session();
 
 		...
-		game.event({...});
 
-		if botMessages.messagesToProcess()
-			gameLogic.process(botMessages.get());
+		game.event({...}, function (httpcode, text, statustext) {
 
-		botMessages.clear();
-		...
+				// you can use the kiboto message queue,
+				// or spin your own
+				// or modify game state right here (although
+				// I advise using a message queue of some kind)
 
-		// repeat
-
+				if (httpcode == 200)
+					botMessages.push(text);
+				else
+					botMessages.push(statustext);
+			},
+			function (errorcode, errormessage) {
+				//...
+			}, 5000);
 
 */
 
@@ -58,16 +42,21 @@ function KibotoBotMessages() {
 	// object
 	// NOTE: this should be a singleton but can't really enforce it!
 
-	window.kibotoResponses = [];
-	window.messagesToProcess = false;
+	this.kibotoResponses = [];
+	this.messagesToProcess = false;
 
 	this.get = function() {
-		return window.kibotoResponses;
+		return this.kibotoResponses;
 	};
 
+	this.push = function(message) {
+		this.kibotoResponses.push(message);
+		this.messagesToProcess = true;
+	}
+
 	this.clear = function() {
-		window.kibotoResponses = [];
-		window.messagesToProcess = false;
+		this.kibotoResponses = [];
+		this.messagesToProcess = false;
 	};
 }
 
@@ -122,18 +111,7 @@ function KibotoGame(hostname, port, game_id, session_id, player_id) {
 
 		// handle success
 		if (callback == null) {
-			xhr.onload = function (err) {
-				if (xhr.readyState == 4) {
-					if (xhr.status == 200) {
-						window.kibotoResponses.push(xhr.responseText);
-						window.messagesToProcess = true;
-					} else {
-						// we still want to process the errors
-						window.kibotoResponses.push(xhr.statusText);
-						window.messagesToProcess = true;
-					}
-				}
-			};
+			// error. how to notify?
 		} else {
 			// wrap the function to notify the bot message
 			// object that there are messages to process
@@ -148,11 +126,7 @@ function KibotoGame(hostname, port, game_id, session_id, player_id) {
 
 		// handle errors
 		if (errorCallback == null) {
-			xhr.onerror = function (err) {
-				// should we store text or HTTP codes? or our own mapping?
-				window.kibotoResponses.push(xhr.statusText);
-				window.messagesToProcess = true;
-			};
+			// error. how to notify?
 		} else {
 			xhr.onerror = function (err) {
 				errorCallback(xhr.status, xhr.statusText);
