@@ -13,7 +13,7 @@
 
 		...
 		game = new KibotoGame(hostname, port, 123, 000, "bob");
-		game.connect();
+		game.init_session();
 
 		...
 
@@ -36,7 +36,7 @@
 		...
 		botMessages = new KibotoBotMessages();
 		game = new KibotoGame(hostname, port, 123, 000, "bob");
-		game.connect();
+		game.init_session();
 
 		...
 		game.event({...});
@@ -78,11 +78,33 @@ function KibotoGame(hostname, port, game_id, session_id, player_id) {
 	this.session_id = session_id;
 	this.player_id = player_id;
 
+	// a session should already exist, so might as well use it
 	this.session_key = game_id + ':' + session_id + ':' + player_id;
 	this.responses = [];
 
-	this.connect = function() {
+	this.session_error = false;
+
+	this.init_session = function() {
 		// initializes the session
+		url = this.host + ':' + this.port + '/session?' + \
+				'game_id=' + game_id + '&' + \
+				'session_id=' + session_id + '&' + \
+				'player_id=' + player_id;
+
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", "/event", true);
+		xhr.onload = function (err) {
+			if (xhr.readyState == 4) {
+				if (xhr.status != 200) {
+					console.log ("error: couldn't start session:");
+					console.log ("status: " + xhr.status.toString());
+					onsole.log ("message: " + xhr.statusText);
+					this.session_error = true;
+				} else {
+					this.session_error = false;
+				}
+			}
+		}
 	};
 
 	this.event = function(data, callback, errorCallback, timeout) {
@@ -118,7 +140,9 @@ function KibotoGame(hostname, port, game_id, session_id, player_id) {
 			xhr.onload = function (err) {
 				// assume they handle their own message state and
 				// message queue. only pass them what they need
-				callback(xhr.status, xhr.responseText, xhr.statusText);
+				if (xhr.readyState == 4) {
+					callback(xhr.status, xhr.responseText, xhr.statusText);
+				}
 			};
 		}
 
@@ -134,6 +158,8 @@ function KibotoGame(hostname, port, game_id, session_id, player_id) {
 				errorCallback(xhr.status, xhr.statusText);
 			};
 		}
+
+		// handle timeouts?
 
 		xhr.timeout = timeoutMS;
 		xhr.send();
