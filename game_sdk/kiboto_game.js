@@ -10,14 +10,17 @@
 
 		...
 
-		game.event({...}, function (err) {
-				this.responseText;
-				this.statusText;
+		game.event({...}, function (httpcode, text, statustext) {
+				// do stuff here
 			},
 
-			function (err) {
-				this.statusText;
+			function (errorcode, errormessage) {
+				// do stuff here
 			});
+
+		// here, gameLogic is assumed to exist
+		if botMessages.messagesToProcess()
+			gameLogic.process(botMessages.get());
 
 		workflow 2 - using the global message queue
 
@@ -30,8 +33,8 @@
 
 		game.event({...});
 
-		// here, gameLogic is assumed to exist
-		gameLogic.process(botMessages.get());
+		if botMessages.messagesToProcess()
+			gameLogic.process(botMessages.get());
 
 		botMessages.clear();
 
@@ -89,12 +92,14 @@ function KibotoGame(hostname, port, game_id, session_id, player_id) {
 		// handle success
 		if (callback == null) {
 			xhr.onload = function (err) {
-				if (xhr.readyState === 4) {
-					if (xhr.status === 200) {
+				if (xhr.readyState == 4) {
+					if (xhr.status == 200) {
 						window.kibotoResponses.push(xhr.responseText);
 						window.messagesToProcess = true;
 					} else {
+						// we still want to process the errors
 						window.kibotoResponses.push(xhr.statusText);
+						window.messagesToProcess = true;
 					}
 				}
 			};
@@ -102,13 +107,10 @@ function KibotoGame(hostname, port, game_id, session_id, player_id) {
 			// wrap the function to notify the bot message
 			// object that there are messages to process
 			xhr.onload = function (err) {
-				if (xhr.status == 200 ) {
-					window.messagesToProcess = true;
-					callback("");
-				} else {
-					callback(xhr.statusText);
-				}
-			}
+				// assume they handle their own message state and
+				// message queue. only pass them what they need
+				callback(xhr.status, xhr.responseText, xhr.statusText);
+			};
 		}
 
 		// handle errors
@@ -116,9 +118,12 @@ function KibotoGame(hostname, port, game_id, session_id, player_id) {
 			xhr.onerror = function (err) {
 				// should we store text or HTTP codes? or our own mapping?
 				window.kibotoResponses.push(xhr.statusText);
-			}
+				window.messagesToProcess = true;
+			};
 		} else {
-			xhr.onerror = errorCallback;
+			xhr.onerror = function (err) {
+				errorCallback(xhr.status, xhr.statusText);
+			};
 		}
 
 		xhr.send();
