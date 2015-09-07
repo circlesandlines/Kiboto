@@ -1,5 +1,5 @@
 # Kiboto Server
-===============
+---------------
 A set of tools for controlling games with artificial intelligence, for the sake of live competition.
 
 ## Status
