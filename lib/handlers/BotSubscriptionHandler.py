@@ -18,6 +18,10 @@ class BotSubscriptionHandler(tornado.web.RequestHandler):
 
 		session_store = tornadis.Client(client_timeout=1)
 		yield session_store.connect()
+		# NOTE should do some syncronous checks here before setting
+		# so that we can notify the bot if its already been set in the time
+		# that it took to join
+		# reply with error so the bot can keep searching
 		yield session_store.call('SET', session_key, hostname)
 
 		self.write()

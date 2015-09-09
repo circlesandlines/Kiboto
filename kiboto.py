@@ -6,7 +6,6 @@ from tornado.process import fork_processes
 
 # helpers
 import json
-import sys
 
 if __name__ == "__main__":
 	# load config files
@@ -14,12 +13,11 @@ if __name__ == "__main__":
 		config = json.loads(f.read())
 
 	# kiboto specific imports
-	sys.path.append(config['kiboto_dir'].rstrip('/') + '/Kiboto/lib')
-	from handlers import GameSessionInitializer
-	from handlers import BotSubscriptionHandler
-	from handlers import SessionBroadcastHandler
-	from handlers import EventHandler
-	import session_state
+	from lib.handlers import GameSessionInitializer
+	from lib.handlers import BotSubscriptionHandler
+	from lib.handlers import SessionBroadcastHandler
+	from lib.handlers import EventHandler
+	from lib.support_systems import session_state
 
 	# keep a global copy of session cache for speed
 	local_sessions = session_state.SessionHandler()
