@@ -27,7 +27,7 @@ if __name__ == "__main__":
 	tornado_app_config = tornado.web.Application([
 			(r"/session", GameSessionInitializer, dict(local_sessions=local_sessions)),
 			(r"/subscribe", BotSubscriptionHandler),
-			(r"/get_sessions", SessionBroadcastHandler, dict(local_sessions=local_sessions)),
+			(r"/get_sessions", SessionBroadcastHandler),
 			(r"/event", EventHandler, dict(local_sessions=local_sessions))
 		])
 

@@ -10,6 +10,6 @@ class SessionHandler:
 	def update_from_redis(self):
 		""""""
 
-		session_store = tornadis.Client(client_timeout=1)
+		session_store = tornadis.Client()
 		yield session_store.connect()
 		self.sessions = yield session_store.call('HKEYS')

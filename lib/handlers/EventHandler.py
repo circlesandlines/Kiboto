@@ -17,7 +17,7 @@ class EventHandler(tornado.web.RequestHandler):
 
 		# check if session exists in local store
 		if session_key not in self.local_sessions.sessions:
-			session_store = tornadis.Client(client_timeout=1)
+			session_store = tornadis.Client()
 			yield session_store.connect()
 			hostname = yield session_store.call('GET', session_key)
 		else:

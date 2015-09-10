@@ -34,34 +34,39 @@ class GameSessionInitializer(tornado.web.RequestHandler):
 		# tornado will throw an exception on game client side.
 		# check if its meaningful. if not, wrap it in a try catch
 		# TODO: cleanly handle missing arguments
-		game_id = self.request.get_argument('game_id')
-		session_id = self.request.get_argument('session_id')
-		player_id = self.request.get_argument('player_id')
+		game_id = self.get_argument('game_id')
+		session_id = self.get_argument('session_id')
+		player_id = self.get_argument('player_id')
 
 		# gen session key
 		session_key = "session:{}:{}:{}".format(game_id, session_id, player_id)
 
 		# update session_store (and expire after 5 hours)
 		# set the value as empty. it will be set to the bot hostname when it decides to connect
-		# TODO cleanly handle timeout
-		session_store = tornadis.Client(client_timeout=1)
+		session_store = tornadis.Client()
 		yield session_store.connect()
-		yield session_store.call('SET', session_key, "", 5*60*60*60)
+		status = yield session_store.call('HSET', 'sessions', session_key, "empty")
+
+		print "session stored: ", session_key
+		print "redis status: ", status
 
 		# wait for the session to have a subscriber
 		# once a bot subscribes, the value of the key will be the hostname
 		for retries in xrange(0, 100):
-			# wait and retry
+			# wait 5 seconds and retry
 			yield tornado.gen.sleep(5)
-			hostname = yield session_store.call('GET', session_key)
+			hostname = yield session_store.call('HGET', 'sessions', session_key)
 
-			if hostname != "":
+			if hostname != "empty" and hostname != None:
+				print "bot matched! ", hostname
 				break
+			print "retry ", session_key
 
 		# if the host name is still not set after 100 retries
-		if hostname == "":
+		if hostname == "empty":
 			# send an HTTP timeout error
 			self.send_error(504)
+			print "failed to find any bots"
 			return
 
 		# update local store
@@ -75,8 +80,12 @@ class GameSessionInitializer(tornado.web.RequestHandler):
 		self.local_sessions.sessions[session_key] = hostname
 
 		# update session_store with the hostname that is subscribed to the game client
-		# TODO cleanly handle timeout
-		yield session_store.call('SET', session_key, "hostname", 5*60*60*60)
+		# TODO cleanly handle timeout. how!? this client doesn't handle it...
+		stored_hostname = yield session_store.call('HGET', 'sessions', session_key)
+		print 'stored hostname: ', stored_hostname
+
+		if stored_hostname != hostname:
+			print "stored hostname does not equal hostname. stored: {0}, cached: {1}".format(stored_hostname, hostname)
 
 		# the game can now start!
 		self.finish()
