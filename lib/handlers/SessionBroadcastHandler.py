@@ -4,7 +4,7 @@
 
 import tornado.web
 
-class MyRequestHandler(tornado.web.RequestHandler):
+class SessionBroadcastHandler(tornado.web.RequestHandler):
 	def initialize(self, local_sessions):
 		self.local_sessions = local_sessions
 

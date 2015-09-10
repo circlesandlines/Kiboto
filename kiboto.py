@@ -1,3 +1,4 @@
+# web server
 import tornado.ioloop
 from tornado.httpserver import HTTPServer
 import tornado.web
@@ -7,17 +8,17 @@ from tornado.process import fork_processes
 # helpers
 import json
 
+# kiboto specific imports
+from lib.handlers.GameSessionInitializer import GameSessionInitializer
+from lib.handlers.BotSubscriptionHandler import BotSubscriptionHandler
+from lib.handlers.SessionBroadcastHandler import SessionBroadcastHandler
+from lib.handlers.EventHandler import EventHandler
+from lib.support_systems import session_state
+
 if __name__ == "__main__":
 	# load config files
 	with open('conf/server.config') as f:
 		config = json.loads(f.read())
-
-	# kiboto specific imports
-	from lib.handlers import GameSessionInitializer
-	from lib.handlers import BotSubscriptionHandler
-	from lib.handlers import SessionBroadcastHandler
-	from lib.handlers import EventHandler
-	from lib.support_systems import session_state
 
 	# keep a global copy of session cache for speed
 	local_sessions = session_state.SessionHandler()

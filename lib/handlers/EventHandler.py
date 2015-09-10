@@ -4,7 +4,7 @@ import tornado.web
 from tornado.httpclient import AsyncHTTPClient
 import tornadis
 
-class MyRequestHandler(tornado.web.RequestHandler):
+class EventHandler(tornado.web.RequestHandler):
 
 	def initialize(self, local_sessions):
 		self.local_sessions = local_sessions
