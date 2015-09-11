@@ -8,7 +8,7 @@ Stay tuned to get
 	environment setup
 	usage documentation
 
-## TODO
+## TODO for 1.0 release
 - [x] initialize game sessions based on game client requests
 - [x] back up sessions in redis
 - [x] accept bot session registration
