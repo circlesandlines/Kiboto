@@ -8,6 +8,14 @@ Stay tuned to get
 	environment setup
 	usage documentation
 
+## TODO
+- [x] initialize game sessions based on game client requests
+- [x] back up sessions in redis
+- [x] accept bot session registration
+- [ ] solidify edge-cases
+- [ ] formal tests
+- [ ] formal documentation
+
 
 ## Requirements:
 
@@ -23,3 +31,4 @@ https://github.com/circlesandlines/KibotoGameSDK
 ## Bot SDK
 
 https://github.com/circlesandlines/KibotoBotSDK
+
