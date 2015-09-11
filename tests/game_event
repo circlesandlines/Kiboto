@@ -1,0 +1,3 @@
+#!/bin/bash
+
+curl -X POST -d @event.json "http://localhost:9090/event"

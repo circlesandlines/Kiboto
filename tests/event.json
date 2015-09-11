@@ -1,0 +1,17 @@
+{
+	"session_key": "sample_game:1:P1",
+	"message": {
+		"type": "introduction",
+		"player_1": {
+			"name": "bob",
+			"bot_id": "<the host name>",
+			"health": 100
+		},
+
+		"player_2": {
+			"name": "jimbobbob",
+			"bot_id": "<the host name>",
+			"health": 100
+		}
+	}
+}
