@@ -1,6 +1,6 @@
 """
 
-	© KibotoLabs
+	Copyright 2015 KibotoLabs
 
 	Game Session Initializer
 
