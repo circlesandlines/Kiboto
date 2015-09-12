@@ -40,13 +40,11 @@ Kiboto has only python package dependencies, so you can install it entirely with
 pip install -r requirements.txt
 ```
 
-Copy the sample config and modify it as your own:
+Copy the sample config and modify it as your own. At the moment, you only need to add the port:
 ```
 cp conf/server_sample.config conf/server.config
 vim conf/server.config
 ```
-
-At the moment, you only need to add the port
 
 Start up the server:
 ```
@@ -54,7 +52,7 @@ Start up the server:
 python kiboto.py
 ```
 
-To set up complete end to end, game client, server, bot, follow the instructions in the respective repos below
+To set up complete end to end workflow - game client, server, bot - follow the instructions in the respective repos below
 
 ## Game client SDK
 
