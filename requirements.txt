@@ -1,3 +1,2 @@
 tornado>=4.2.1
 tornadis
-virtualenv
