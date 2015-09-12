@@ -1,3 +1,35 @@
+"""
+
+	© KibotoLabs
+
+	Game Session Initializer
+
+	This handles requests from games for starting an AI session.
+	A session is initialized per game client connected to the game.
+
+	eg:
+
+	game server -> game client 1 -> kiboto server -> bot1
+	           \-> game client 2 /               \-> bot2
+
+	A game can have multiple sessions if supported:
+		session:
+			player1
+			player2
+			...
+		session2:
+			player1
+			player2
+			...
+
+	all connecting to the same Kiboto server
+
+	Once a game initializes a session, it waits for bots to connect
+	asynchronously
+
+"""
+
+
 import tornado.gen
 import tornado.web
 import tornadis
