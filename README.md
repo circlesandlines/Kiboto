@@ -19,10 +19,42 @@ Stay tuned to get
 
 ## Requirements:
 
-- python
+- python 2.7, 3.2, 3.3, and 3.4
 - tornado
-- redis
-- virtualenv
+- tornadis (sync redis client)
+- local redis server running
+
+## Install
+
+Install and run redis server:
+http://redis.io/topics/quickstart
+
+At the moment, there is no official Kiboto release, so just clone the repo
+```
+git clone git@github.com:circlesandlines/Kiboto.git
+cd Kiboto
+```
+
+Kiboto has only python package dependencies, so you can install it entirely with pip
+```
+pip install -r requirements.txt
+```
+
+Copy the sample config and modify it as your own:
+```
+cp conf/server_sample.config conf/server.config
+vim conf/server.config
+```
+
+At the moment, you only need to add the port
+
+Start up the server:
+```
+# cd to project root directory
+python kiboto.py
+```
+
+To set up complete end to end, game client, server, bot, follow the instructions in the respective repos below
 
 ## Game client SDK
 
