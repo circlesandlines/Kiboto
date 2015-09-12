@@ -21,7 +21,8 @@ Stay tuned to get
 
 - python 2.7, 3.2, 3.3, and 3.4
 - tornado
-- tornadis (sync redis client)
+- tornadis (async redis client)
+- redis (sync redis client)
 - local redis server running
 
 ## Install
