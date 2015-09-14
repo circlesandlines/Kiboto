@@ -2,11 +2,7 @@
 A set of tools for controlling games with artificial intelligence, for the sake of live competition.
 
 ## Status
-Kiboto is currently in a pre-release state.
-Stay tuned to get
-	installation instructions
-	environment setup
-	usage documentation
+Kiboto is currently in a pre-release state. Stay tuned to get installation instructions, environment setup, and tutorials
 
 ## TODO for 1.0 release
 - [x] initialize game sessions based on game client requests
