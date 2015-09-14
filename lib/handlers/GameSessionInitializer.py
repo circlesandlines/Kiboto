@@ -66,6 +66,7 @@ class GameSessionInitializer(tornado.web.RequestHandler):
 		# tornado will throw an exception on game client side.
 		# check if its meaningful. if not, wrap it in a try catch
 		# TODO: cleanly handle missing arguments
+		# return error to game client
 		game_id = self.get_argument('game_id')
 		session_id = self.get_argument('session_id')
 		player_id = self.get_argument('player_id')
@@ -76,7 +77,10 @@ class GameSessionInitializer(tornado.web.RequestHandler):
 		# update session_store (and expire after 5 hours)
 		# set the value as empty. it will be set to the bot hostname when it decides to connect
 		session_store = tornadis.Client()
+		# TODO handle connection error
 		yield session_store.connect()
+
+		# TODO handle None return error
 		status = yield session_store.call('HSET', 'sessions', session_key, "empty")
 
 		print "session stored: ", session_key
@@ -112,7 +116,9 @@ class GameSessionInitializer(tornado.web.RequestHandler):
 		self.local_sessions.sessions[session_key] = hostname
 
 		# update session_store with the hostname that is subscribed to the game client
-		# TODO cleanly handle timeout. how!? this client doesn't handle it...
+
+		# TODO handle None return
+		# how to handle timeout?
 		stored_hostname = yield session_store.call('HGET', 'sessions', session_key)
 		print 'stored hostname: ', stored_hostname
 

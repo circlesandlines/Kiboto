@@ -11,5 +11,7 @@ class SessionHandler:
 		""""""
 
 		session_store = tornadis.Client()
+		# TODO handle bad connection
 		yield session_store.connect()
+		# handle None return
 		self.sessions = yield session_store.call('HKEYS')

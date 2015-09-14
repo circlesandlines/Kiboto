@@ -26,12 +26,16 @@ class BotSubscriptionHandler(tornado.web.RequestHandler):
 
 	@tornado.gen.coroutine
 	def get(self):
+
+		# TODO handle missing arguments. notify client
 		hostname = self.get_argument('hostname')
 		session_key = self.get_argument('session_key')
 
 		# use non-async redis, so that we can't overwrite something that
 		# has just been written, while the callback is waiting for a reply.
 		# not sure if this is possible, but just in case until verified!
+
+		# TODO handle None return
 		self.sync_redis.hset('sessions', session_key, hostname)
 		keys = self.sync_redis.hgetall('sessions')
 		print 'hostname set. all keys: ', keys

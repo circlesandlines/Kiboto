@@ -12,10 +12,12 @@ class SessionBroadcastHandler(tornado.web.RequestHandler):
 	def get(self):
 		# fairly straight forward :P
 		session_store = tornadis.Client()
+		# TODO handle bad connection
 		yield session_store.connect()
 		# the following returns a list... [k,v,k,v]
 		# i'm tempted to just use the regular python redis client...
 		# or switch to node >:(
+		# TODO handle None/empty list return
 		sessions = yield session_store.call('HGETALL', 'sessions')
 
 		sessions_dict = self.translator(sessions)
