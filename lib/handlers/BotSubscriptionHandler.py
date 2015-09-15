@@ -18,7 +18,8 @@
 """
 
 import tornado.web
-import tornadis
+from tornado.web import MissingArgumentError
+import json
 
 class BotSubscriptionHandler(tornado.web.RequestHandler):
 	def initialize(self, sync_redis):
@@ -28,16 +29,43 @@ class BotSubscriptionHandler(tornado.web.RequestHandler):
 	def get(self):
 
 		# TODO handle missing arguments. notify client
-		hostname = self.get_argument('hostname')
-		session_key = self.get_argument('session_key')
+		try:
+			hostname = self.get_argument('hostname')
+			session_key = self.get_argument('session_key')
+		except MissingArgumentError as e:
+			reply = {
+				'error': 1,
+				'err_msg': "missing parameter: " + str(e)
+			}
+			self.write(json.dumps(reply))
+			self.finish()
+			return
 
 		# use non-async redis, so that we can't overwrite something that
 		# has just been written, while the callback is waiting for a reply.
 		# not sure if this is possible, but just in case until verified!
 
-		# TODO handle None return
-		self.sync_redis.hset('sessions', session_key, hostname)
-		keys = self.sync_redis.hgetall('sessions')
-		print 'hostname set. all keys: ', keys
+		try:
+			self.sync_redis.hset('sessions', session_key, hostname)
+			keys = self.sync_redis.hgetall('sessions')
+		except Exception as e:
+			reply = {
+				'error': 1,
+				'err_message': "subscription failed. server error"
+			}
+			self.write(json.dumps(reply))
+			self.finish()
+			return
 
+		if keys == None or keys == {}:
+			reply = {
+				'error': 1,
+				'err_message': "subscription failed. unknown reason"
+			}
+			self.write(json.dumps(reply))
+			self.finish()
+			return
+
+		print 'hostname set. all keys: ', keys
 		self.finish()
+
