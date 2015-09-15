@@ -9,8 +9,7 @@ Kiboto is currently in a pre-release state. Stay tuned to get installation instr
 - [x] back up sessions in redis
 - [x] accept bot session registration
 - [ ] solidify edge-cases
-- [ ] formal tests
-- [ ] formal documentation
+- [x] formal documentation
 
 
 ## Requirements:
