@@ -33,6 +33,13 @@
 import tornado.gen
 import tornado.web
 import tornadis
+from tornado.web import MissingArgumentError
+from tornadis import ClientError
+from tornadis import ConnectionError
+
+import json
+
+class SessionStoreException(Exception): pass
 
 class GameSessionInitializer(tornado.web.RequestHandler):
 	"""
@@ -62,14 +69,18 @@ class GameSessionInitializer(tornado.web.RequestHandler):
 		"""
 
 		# extract params
-		# NOTE that if either of the parameters below are missing,
-		# tornado will throw an exception on game client side.
-		# check if its meaningful. if not, wrap it in a try catch
-		# TODO: cleanly handle missing arguments
-		# return error to game client
-		game_id = self.get_argument('game_id')
-		session_id = self.get_argument('session_id')
-		player_id = self.get_argument('player_id')
+		try:
+			game_id = self.get_argument('game_id')
+			session_id = self.get_argument('session_id')
+			player_id = self.get_argument('player_id')
+		except MissingArgumentError as e:
+			reply = {
+				'error': 1,
+				'err_msg': "missing parameter: " + str(e)
+			}
+			self.write(json.dumps(reply))
+			self.finish()
+			return
 
 		# gen session key
 		session_key = "session:{}:{}:{}".format(game_id, session_id, player_id)
@@ -78,13 +89,45 @@ class GameSessionInitializer(tornado.web.RequestHandler):
 		# set the value as empty. it will be set to the bot hostname when it decides to connect
 		session_store = tornadis.Client()
 		# TODO handle connection error
-		yield session_store.connect()
+		cstatus = yield session_store.connect()
+		if not cstatus:
+			reply = {
+				'error': 1,
+				'err_msg': "server session store connection error"
+			}
+			raise SessionStoreException('session store connection error')
 
 		# TODO handle None return error
-		status = yield session_store.call('HSET', 'sessions', session_key, "empty")
+		try:
+			cstatus = yield session_store.call('HSET', 'sessions', session_key, "empty")
+		except ClientError as e:
+			reply = {
+				'error': 1,
+				'err_msg': "server session store update error"
+			}
+			self.write(json.dumps(reply))
+			self.finish()
+			raise e
+
+		if cstatus == ConnectionError:
+			reply = {
+				'error': 1,
+				'err_msg': "server session store update error"
+			}
+			self.write(json.dumps(reply))
+			self.finish()
+			raise SessionStoreException('session store update error')
+		elif cstatus == None:
+			reply = {
+				'error': 1,
+				'err_msg': "session does not exist"
+			}
+			self.write(json.dumps(reply))
+			self.finish()
+			raise SessionStoreException('session does not exist: ' + session_key)
 
 		print "session stored: ", session_key
-		print "redis status: ", status
+		print "redis status: ", cstatus
 
 		# wait for the session to have a subscriber
 		# once a bot subscribes, the value of the key will be the hostname
@@ -106,24 +149,45 @@ class GameSessionInitializer(tornado.web.RequestHandler):
 			return
 
 		# update local store
-		# TODO. also make a periodic function that updates this.
-		# if a node in the cluster hasn't synced with the session store,
-		# send errors on ping so that proxies can't detect it
-		# the key written here might be overwritten later in the sync
-		# that's ok, its async :) no collisions!
-		# the above strategy will minimize cache misses and eventual
-		# consistency anomalies
 		self.local_sessions.sessions[session_key] = hostname
 
 		# update session_store with the hostname that is subscribed to the game client
 
 		# TODO handle None return
 		# how to handle timeout?
-		stored_hostname = yield session_store.call('HGET', 'sessions', session_key)
+		try:
+			stored_hostname = yield session_store.call('HGET', 'sessions', session_key)
+		except ClientError as e:
+			reply = {
+				'error': 1,
+				'err_msg': "server session store update error"
+			}
+			self.write(json.dumps(reply))
+			self.finish()
+			raise e
+
+		if stored_hostname == ConnectionError:
+			reply = {
+				'error': 1,
+				'err_msg': "server session store update error"
+			}
+			self.write(json.dumps(reply))
+			self.finish()
+			raise SessionStoreException('session store update error')
+		elif stored_hostname == None:
+			reply = {
+				'error': 1,
+				'err_msg': "session does not exist"
+			}
+			self.write(json.dumps(reply))
+			self.finish()
+			raise SessionStoreException('session does not exist: ' + session_key)
+
 		print 'stored hostname: ', stored_hostname
 
 		if stored_hostname != hostname:
-			print "stored hostname does not equal hostname. stored: {0}, cached: {1}".format(stored_hostname, hostname)
+			print "stored hostname does not equal cached hostname. stored: {0}, cached: {1}".format(stored_hostname, hostname)
+			raise SessionStoreException("stored hostname doesn't match cached hostname")
 
 		# the game can now start!
 		self.finish()
