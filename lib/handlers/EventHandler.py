@@ -3,8 +3,11 @@ import tornado.gen
 import tornado.web
 from tornado import httpclient
 import tornadis
+from tornadis import ClientError
 
 class NoSessionInStoreException(Exception): pass
+class NotJSONException(Exception): pass
+class SessionStoreException(Exception): pass
 
 class EventHandler(tornado.web.RequestHandler):
 
@@ -17,24 +20,48 @@ class EventHandler(tornado.web.RequestHandler):
 		try:
 			event_data = json.loads(self.request.body)
 		except Exception as e:
-			raise NotJSONException("don't sent non-json event data")
+			reply = {
+				'error': 1,
+				'err_msg': "request body not json"
+			}
+			self.write(json.dumps(reply))
+			self.finish()
+			raise NotJSONException("don't send non-json event data")
 
 		session_key = 'session:' + event_data['session_key']
 
 		try:
 			bot_message = json.dumps({'event': event_data['message']})
-		except KeyError:
-			raise NoEventMessageException("no 'message' was sent")
+		except KeyError as e:
+			reply = {
+				'error': 1,
+				'err_msg': "'message' object missing in event"
+			}
+			self.write(json.dumps(reply))
+			self.finish()
+			raise e
 
 		# check if session exists in local store
 		if session_key not in self.local_sessions.sessions:
 			# cache miss. go to redis
 			session_store = tornadis.Client()
 
-			yield session_store.connect()
-			hostname = yield session_store.call('HGET', 'sessions', session_key)
+			try:
+				cstatus = yield session_store.connect()
+				if not cstatus:
+					raise SessionStoreException
+				hostname = yield session_store.call('HGET', 'sessions', session_key)
+			except Exception as e:
+				print "session store connection error: ", e
+				reply = {
+					'error': 1,
+					'err_message': "session store connection error"
+				}
+				self.write(json.dumps(reply))
+				self.finish()
+				raise  e
 
-			if not hostname:
+			if hostname == ClientError or not hostname:
 				reply = {
 					'error': 1,
 					'err_msg': "server-side session store error"
@@ -64,12 +91,12 @@ class EventHandler(tornado.web.RequestHandler):
 							connect_timeout=1,
 							request_timeout=1 )
 
-		# TODO handle connection error
 		try:
 			http_client = httpclient.AsyncHTTPClient()
 			action = yield http_client.fetch(request)
 		except Exception as e:
 			# this seems lazy, but really, no errors should be happening here
+			# and only the game client needs to be aware
 			print 'bot action error: ', e
 			reply = {
 				'error': 1,
@@ -77,7 +104,7 @@ class EventHandler(tornado.web.RequestHandler):
 			}
 			self.write(json.dumps(reply))
 			self.finish()
-			return
+			raise e
 
 		print 'action: ', action.body
 

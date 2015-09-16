@@ -20,6 +20,7 @@
 import tornado.web
 from tornado.web import MissingArgumentError
 import json
+class EmptyStoreException(Exception): pass
 
 class BotSubscriptionHandler(tornado.web.RequestHandler):
 	def initialize(self, sync_redis):
@@ -28,7 +29,6 @@ class BotSubscriptionHandler(tornado.web.RequestHandler):
 	@tornado.gen.coroutine
 	def get(self):
 
-		# TODO handle missing arguments. notify client
 		try:
 			hostname = self.get_argument('hostname')
 			session_key = self.get_argument('session_key')
@@ -39,7 +39,7 @@ class BotSubscriptionHandler(tornado.web.RequestHandler):
 			}
 			self.write(json.dumps(reply))
 			self.finish()
-			return
+			raise e
 
 		# use non-async redis, so that we can't overwrite something that
 		# has just been written, while the callback is waiting for a reply.
@@ -55,7 +55,7 @@ class BotSubscriptionHandler(tornado.web.RequestHandler):
 			}
 			self.write(json.dumps(reply))
 			self.finish()
-			return
+			raise e
 
 		if keys == None or keys == {}:
 			reply = {
@@ -64,7 +64,7 @@ class BotSubscriptionHandler(tornado.web.RequestHandler):
 			}
 			self.write(json.dumps(reply))
 			self.finish()
-			return
+			raise EmptyStoreException("subscription failed. redis session store empty?")
 
 		print 'hostname set. all keys: ', keys
 		self.finish()

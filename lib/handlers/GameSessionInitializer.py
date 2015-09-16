@@ -80,7 +80,7 @@ class GameSessionInitializer(tornado.web.RequestHandler):
 			}
 			self.write(json.dumps(reply))
 			self.finish()
-			return
+			raise e
 
 		# gen session key
 		session_key = "session:{}:{}:{}".format(game_id, session_id, player_id)
@@ -95,11 +95,16 @@ class GameSessionInitializer(tornado.web.RequestHandler):
 				'error': 1,
 				'err_msg': "server session store connection error"
 			}
+			self.write(json.dumps(reply))
+			self.finish()
 			raise SessionStoreException('session store connection error')
 
 		# TODO handle None return error
 		try:
 			cstatus = yield session_store.call('HSET', 'sessions', session_key, "empty")
+
+			if cstatus == ConnectionError:
+				raise cstatus
 		except ClientError as e:
 			reply = {
 				'error': 1,
@@ -109,15 +114,16 @@ class GameSessionInitializer(tornado.web.RequestHandler):
 			self.finish()
 			raise e
 
-		if cstatus == ConnectionError:
+		except ConnectionError as e:
 			reply = {
 				'error': 1,
 				'err_msg': "server session store update error"
 			}
 			self.write(json.dumps(reply))
 			self.finish()
-			raise SessionStoreException('session store update error')
-		elif cstatus == None:
+			raise e
+
+		if cstatus == None:
 			reply = {
 				'error': 1,
 				'err_msg': "session does not exist"
@@ -187,6 +193,12 @@ class GameSessionInitializer(tornado.web.RequestHandler):
 
 		if stored_hostname != hostname:
 			print "stored hostname does not equal cached hostname. stored: {0}, cached: {1}".format(stored_hostname, hostname)
+			reply = {
+				'error': 1,
+				'err_msg': "server error: session cache doesn't match session store"
+			}
+			self.write(json.dumps(reply))
+			self.finish()
 			raise SessionStoreException("stored hostname doesn't match cached hostname")
 
 		# the game can now start!
