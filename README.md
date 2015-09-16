@@ -8,7 +8,7 @@ Kiboto is currently in a pre-release state. Stay tuned to get installation instr
 - [x] initialize game sessions based on game client requests
 - [x] back up sessions in redis
 - [x] accept bot session registration
-- [ ] solidify edge-cases
+- [x] solidify edge-cases
 - [x] formal documentation
 
 
