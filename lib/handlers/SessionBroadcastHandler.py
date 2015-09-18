@@ -11,6 +11,19 @@ import json
 class SessionStoreException(Exception): pass
 
 class SessionBroadcastHandler(tornado.web.RequestHandler):
+
+	def initialize(self, domain):
+		self.domain = domain
+
+	def set_default_headers(self):
+		self.set_header("Access-Control-Allow-Origin", "*")
+
+        def check_origin(self, origin):
+                if 'localhost' in origin or self.domain in origin:
+                        return True
+
+                return False
+
 	@tornado.gen.coroutine
 	def get(self):
 		# fairly straight forward :P

@@ -43,10 +43,10 @@ if __name__ == "__main__":
 
 	# multiple request handlers, sharing the same state
 	tornado_app_config = tornado.web.Application([
-			(r"/session", GameSessionInitializer, dict(local_sessions=local_sessions)),
-			(r"/subscribe", BotSubscriptionHandler, dict(sync_redis=sync_redis)),
-			(r"/get_sessions", SessionBroadcastHandler),
-			(r"/event", EventHandler, dict(local_sessions=local_sessions))
+			(r"/session", GameSessionInitializer, dict(local_sessions=local_sessions, domain=config['domain'])),
+			(r"/subscribe", BotSubscriptionHandler, dict(sync_redis=sync_redis, domain=config['domain'])),
+			(r"/get_sessions", SessionBroadcastHandler, dict(domain=config['domain'])),
+			(r"/event", EventHandler, dict(local_sessions=local_sessions, domain=config['domain']))
 		])
 
 	# listen on the configured port, default to 8888 if not specified

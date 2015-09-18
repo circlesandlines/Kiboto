@@ -11,8 +11,18 @@ class SessionStoreException(Exception): pass
 
 class EventHandler(tornado.web.RequestHandler):
 
-	def initialize(self, local_sessions):
+	def initialize(self, local_sessions, domain):
 		self.local_sessions = local_sessions
+		self.domain = domain
+
+	def set_default_headers(self):
+		self.set_header("Access-Control-Allow-Origin", "*")
+
+        def check_origin(self, origin):
+                if 'localhost' in origin or self.domain in origin:
+                        return True
+
+                return False
 
 	@tornado.gen.coroutine
 	def post(self):
