@@ -1,7 +1,7 @@
 {
 	"session_key": "sample_game:1:P1",
 	"message": {
-		'random': 4,
+		"random": 4,
 		"type": "introduction",
 		"player_1": {
 			"name": "bob",
