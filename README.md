@@ -37,6 +37,11 @@ Start up the server:
 python kiboto.py
 ```
 
+# [NEW] Recipes
+Common workflows and helper scripts can be found here:
+
+https://github.com/circlesandlines/KibotoRecipes
+
 To set up complete end to end workflow - game client, server, bot - follow the instructions in the respective repos below
 
 ## Game client SDK
