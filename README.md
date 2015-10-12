@@ -3,7 +3,7 @@ A set of tools for controlling games with artificial intelligence, for the sake 
 
 ## Requirements:
 
-- python 2.7, 3.2, 3.3, and 3.4
+- python 2.7, 3.2, 3.3, or 3.4
 - tornado
 - tornadis (async redis client)
 - redis (sync redis client)
